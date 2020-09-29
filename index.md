@@ -1,37 +1,19 @@
-## Welcome to GitHub Pages
+## Welcome to Clinton's GitHub Profile?
 
-You can use the [editor on GitHub](https://github.com/CSorrel58/FanduelResearch/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+If you're here, odds are good you came from my Github profile. Some other good resources you may want to look at are:
+-[My Tableau Public Profile](https://public.tableau.com/profile/clinton.sorrel#!/) which contains the various dashboards I have created.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+### NBA
 
-### Markdown
+My first project and the one that currently has the most facets is the data I've scraped for NBA Basketball Player's daily fantasy performance. While the Tableau story can be found on my profile, you can also find it [here.](https://public.tableau.com/profile/clinton.sorrel#!/vizhome/FanduelScores/NBAFanduelValue2020)
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
+<!-->
 For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+<--!>
 
-### Jekyll Themes
+### NFL
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/CSorrel58/FanduelResearch/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+I am currently working on a similar project for the NFL and am giving live updates. The data is accurate through Week 3 and will be updated all year.
 
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+### Contact Me
+Please feel free to reach out to me through [Github](https://github.com/CSorrel58) or find me on [LinkedIn!](https://www.linkedin.com/in/clinton-sorrel/)
