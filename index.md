@@ -1,6 +1,6 @@
-## Welcome to Clinton's GitHub Profile?
+## Welcome to Clinton Sorrel's GitHub Site!
 
-If you're here, odds are good you came from my Github profile. Some other good resources you may want to look at are:
+If you're here, odds are good you came from my [Github profile](https://github.com/CSorrel58). Some other good resources you may want to look at are:
 -[My Tableau Public Profile](https://public.tableau.com/profile/clinton.sorrel#!/) which contains the various dashboards I have created.
 
 ### NBA
