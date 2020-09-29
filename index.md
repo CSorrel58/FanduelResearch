@@ -7,8 +7,6 @@ If you're here, odds are good you came from my [Github profile](https://github.c
 
 My first project and the one that currently has the most facets is the data I've scraped for NBA Basketball Player's daily fantasy performance. While the Tableau story can be found on my profile, you can also find it [here.](https://public.tableau.com/profile/clinton.sorrel#!/vizhome/FanduelScores/NBAFanduelValue2020)
 
-<!-->For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).<--!>
-
 ### NFL
 
 I am currently working on a similar project for the NFL and am giving live updates. The data is accurate through Week 3 and will be updated all year.
