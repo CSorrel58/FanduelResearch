@@ -6,5 +6,6 @@ The CSV file in each zip the information for each player's performance and their
 The Jupyter notebooks contain:
 -"Import_and_Clean_Fanduel":my efforts to clean the data and merge all of the games into one dataframe I could then use to look at player value.
 -"Manipulating Cleaned Fanduel": My efforts to use the cleaned frame to measure player value
+-"{NFL/NBA} Expected Price": My efforts to build a regression model using value to predict player price, points, and value in their next game (for NBA, this was all past-tense)
 
 I also created some visualizations using these frames in Tableau Public and have published them here: https://public.tableau.com/profile/clinton.sorrel#!/?newProfile=&activeTab=0
