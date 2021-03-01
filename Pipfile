@@ -5,12 +5,14 @@ name = "pypi"
 
 [packages]
 pandas = "*"
+beautifulsoup4 = "4.9.3"
 bs4 = "*"
-requests = "*"
+requests = "2.25.1"
 gspread = "*"
 oauth2client = "*"
+click = "7.1.2"
 
 [dev-packages]
 
 [requires]
-python_version = "3.9.2"
+python_version = "3.7"
