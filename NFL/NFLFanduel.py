@@ -39,15 +39,15 @@ def run_nfl():
         lambda x: x.replace('http://rotoguru1.com/cgi-bin/fyday.pl?week=', '') \
             .replace('&game=fd', ''))
     # create separate frame that removes all the url columns
-    data_frame = sample_frame[['Data', 'Week']].reset_index(drop=True)
+    sample_frame = sample_frame[['Data', 'Week']].reset_index(drop=True)
     # There's a subtable headers that aren't player data. we are getting rid of most those here.
     # creates list of all the words I want to find and get rid of
     sub = ['QB', 'Points', 'Team', 'Salary', 'Unlisted', 'Running Backs', 'Kickers', 'Defenses','Opp.','Wide Receivers', "Tight Ends","RotoGuru","\n\n\n\n","Score"]
     pattern = '|'.join(sub)
 
-    data_frame['gone'] = data_frame['Data'].str.contains(pattern, case=True)
+    sample_frame['gone'] = sample_frame['Data'].str.contains(pattern, case=True)
     # remove any rows where we found those subtable headers
-    clean_table = data_frame[data_frame['gone'] == False].reset_index(drop=True)
+    clean_table = sample_frame[sample_frame['gone'] == False].reset_index(drop=True)
     just_data = clean_table[['Data', 'Week']].reset_index(drop=True)
     # merging data and date in a column so
     # I can then hopefully turn each one into a series and then just have the date once at the end.
@@ -56,7 +56,6 @@ def run_nfl():
     just_datas = just_data['merge_date']
     # turning series into a list so we can do some stuff
     data_list = list(just_datas)
-    # I used this loop to create sublists per player based on each player entry having 5 columns
     # each row was 5 entries. This gets thrown off very easily though so we need to be careful to remove all other data
     # which we have already done above
     players = [data_list[x:x + 5] for x in range(0, len(data_list), 5)]
@@ -65,8 +64,6 @@ def run_nfl():
     for player in players:
         player.insert(0, player[0].split('|')[1])
     # creating list that has each player entry as its own record without date.
-    # Note - we already pulled the date and added it to the end of the sublist.
-    # If you haven't done that I recommend you do so first
     player_rows = []
     for player in players:
         if len(player) == 6:

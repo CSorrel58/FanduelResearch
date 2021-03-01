@@ -1,5 +1,6 @@
 .env
-.csv
+*.csv
 .idea
 /base/gdrive_key.json
 .DS_Store
+/nfl_tableau_script.csv
