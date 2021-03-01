@@ -1,30 +1,20 @@
-'''
-Created on Oct 26, 2020
 
-@author: clint
-'''
 #pulling in all the necessary python libraries
 from bs4 import BeautifulSoup
 import requests
 import pandas as pd
-import matplotlib.pyplot as plt
-import numpy as np
-import time
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+
+from base import gdrive
 ##realized the url just updated based on week number, so wrote a loop to accumulate all of the urls
-weeks = list(range(1,17,1))
 ##every week added we just need to update this range
-
 urls = []
-for week in weeks:
+for week in range(1,17,1):
     urls.append(str('http://rotoguru1.com/cgi-bin/fyday.pl?week='+str(week)+'&game=fd'))
-
-##we should now have the page we need for each week
+##we should now have the url we need for each week
 ##creating an empty list that will have the player row for each table
-
 rows = []
-
 ##Running a loop through all the urls to get every piece of data in one list
 ##scraping each url
 for url in urls:
@@ -38,19 +28,14 @@ for url in urls:
         rows.append([row.get_text(),url])
 ##create data frame
 sample_frame = pd.DataFrame.from_records(rows).reset_index()
-##save to csv
-sample_frame.to_csv('All_nfl_rows.csv')
-#create frame from saved csv
-new_frame = pd.read_csv('All_nfl_rows.csv')
 #rename columns
-new_frame.columns = ['Row','ID','Data','URL']
+sample_frame.columns = ['Row','ID','Data','URL']
 #clean up column with urls so it just has date
-dates = new_frame['URL'].map(lambda x: x.replace('http://rotoguru1.com/cgi-bin/fyday.pl?week=','')\
+sample_frame['Week'] = sample_frame['URL'].map(lambda x: x.replace('http://rotoguru1.com/cgi-bin/fyday.pl?week=','')\
                              .replace('&game=fd',''))
-new_frame['Week'] = dates
 
 #create separate frame that removes all the url columns
-date_frame = new_frame[['Data','Week']].reset_index(drop=True)
+date_frame = sample_frame[['Data','Week']].reset_index(drop=True)
 #We need to remove some ads and nav stuff here by 
 #converting to a series, finding the ones that match, and adding back to the table
 find_Ads = date_frame['Data']
@@ -182,7 +167,7 @@ del df1['Foe']
 #going ahead and saving this for a safe template
 df1.to_csv('nfl_weekly_fanduel_scores.csv')
 #create frame from saved csv
-nfl_frame = pd.read_csv('nfl_weekly_fanduel_scores.csv')
+nfl_frame = pd.read_csv('../nfl_weekly_fanduel_scores.csv')
 #rename columns
 nfl_frame.columns = ['Row','Week','Name','Team','Opponent','Fanduel_Points','Fanduel_Price','Game Location']
 #removing extra index column
@@ -222,7 +207,7 @@ nfl_frame.to_csv('nfl_tableau_script.csv')
 scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets',
          "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
 #establishing credentials given to me by Google API
-credentials = ServiceAccountCredentials.from_json_keyfile_name('NFL Sheets JSON.json', scope)
+credentials = ServiceAccountCredentials.from_json_keyfile_name(gdrive, scope)
 client = gspread.authorize(credentials)
 #opening the sheet I am keeping the scores on
 spreadsheet = client.open('nfl_weekly_fanduel_scores')
