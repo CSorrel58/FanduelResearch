@@ -1,3 +1,5 @@
 .env
 .csv
 .idea
+/base/gdrive_key.json
+.DS_Store
