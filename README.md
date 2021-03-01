@@ -8,4 +8,6 @@ The Jupyter notebooks contain:
 -"Manipulating Cleaned Fanduel": My efforts to use the cleaned frame to measure player value
 -"{NFL/NBA} Expected Price": My efforts to build a regression model using value to predict player price, points, and value in their next game (for NBA, this was all past-tense)
 
+Current project is reowrking this to allow it to be run with CLI commands, so it eventually can be automated to run in airflow using kubernetes.
+
 I also created some visualizations using these frames in Tableau Public and have published them here: https://public.tableau.com/profile/clinton.sorrel#!/?newProfile=&activeTab=0
