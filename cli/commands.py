@@ -25,7 +25,8 @@ def fanduel_nfl(week, log_level):
     """Authenticate with fanduel and save cookies to the given store"""
     logs = logging.getLevelName(log_level.upper())
     logging.getLogger().setLevel(logs)
-    run_nfl()
+    week = week
+    run_nfl(week)
 
 if __name__ == '__main__':
     fanduel_nfl()
