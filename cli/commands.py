@@ -7,6 +7,7 @@ import logging
 import logging.config
 
 from NFL.NFLFanduel import run_nfl
+from NBA.NBAFanduel import run_nba
 
 # Adding logger.
 path = os.path.dirname(os.path.realpath(__file__))
