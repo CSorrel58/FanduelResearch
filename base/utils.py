@@ -1,4 +1,5 @@
 import os
+import logging
 from datetime import date
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
@@ -14,7 +15,7 @@ def clean_column(df, column_name:str, character:str):
 
 def google_drive_upload(df, sport: str, ):
     df = df
-    sport = sport
+    sport = str(sport)
     savetime = date.today()
     df.to_csv(f'{sport}.{savetime}.csv')
     scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets',
@@ -25,11 +26,8 @@ def google_drive_upload(df, sport: str, ):
     # opening the sheet I am keeping the scores on
     if sport =="NFL":
         spreadsheet = client.open('nfl_weekly_fanduel_scores')
-    if sport == "NBA":
+    elif sport == "NBA":
         spreadsheet = client.open('Player_Game_Records')
-    else:
-        logging.warning("You called google drive upload without giving a sport")
-        spreadsheet=[]
     # Updating sheet with my new csv
     with open(f'{sport}.{savetime}.csv', 'r') as file_obj:
         content = file_obj.read()

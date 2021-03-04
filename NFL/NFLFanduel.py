@@ -3,18 +3,18 @@ from base import (
         google_drive_upload,
         add_position_nfl,
         clean_column,
-        url_creator,
-        url_scraper,
+        nfl_url_creator,
+        nfl_url_scraper,
         nfl_player_split
     )
 
 def run_nfl(week):
     # realized the url just updated based on week number, so wrote a loop to accumulate all of the urls up to the week number provided
     urls = []
-    url_creator([week],urls)
+    nfl_url_creator(week,urls)
     # creating an empty list that will have the player row for each table
     rows = []
-    url_scraper(urls,rows)
+    nfl_url_scraper(urls,rows)
     # create data frame
     sample_frame = pd.DataFrame.from_records(rows).reset_index()
     # rename columns
