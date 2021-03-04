@@ -1,5 +1,4 @@
 import pandas as pd
-import logging
 from base import (
         google_drive_upload,
         add_position_nfl,
