@@ -12,8 +12,7 @@ from NFL.NFLFanduel import run_nfl
 path = os.path.dirname(os.path.realpath(__file__))
 logging.config.fileConfig(f"cli/logging.ini", disable_existing_loggers=False)
 
-@click.command()
-@click.option('--week',default=17)
+@click.group()
 @click.option(
     "--log-level",
     "-l",
@@ -21,12 +20,29 @@ logging.config.fileConfig(f"cli/logging.ini", disable_existing_loggers=False)
     help="Indicate the level of logging requested. Default is WARNING",
     type=click.Choice(["debug", "info", "warning", "error", "critical"]),
 )
-def fanduel_nfl(week, log_level):
-    """Authenticate with fanduel and save cookies to the given store"""
+def scraper(log_level):
     logs = logging.getLevelName(log_level.upper())
     logging.getLogger().setLevel(logs)
+
+@scraper.command()
+@click.option('--week',default=17)
+
+def fanduel_nfl(week):
+    """Go to Rotoguru for NFL from opening week through week number listed and scrape player data to a google sheet"""
     week = week
     run_nfl(week)
 
+@scraper.command()
+@click.option('--day',default=31)
+@click.option('--month',default=12)
+@click.option('--year',default=2021)
+
+def fanduel_nba(day,month,year):
+    """Go to RotoGuru for NBA from opening day through day listed and scrape player data to a given sheet"""
+    day=day
+    month=month
+    year=year
+    run_nba(day,month,year)
+
 if __name__ == '__main__':
-    fanduel_nfl()
+    scraper()
