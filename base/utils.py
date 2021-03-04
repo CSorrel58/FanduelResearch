@@ -4,7 +4,8 @@ from datetime import date
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
-gdrive = os.path.join("/Users/a09304858/Documents/GitHub/FanduelResearch/base/gdrive_key.json")
+gdrive = os.path.join("base/gdrive_key.json")
+
 
 def clean_column(df, column_name:str, character:str):
     character = character
