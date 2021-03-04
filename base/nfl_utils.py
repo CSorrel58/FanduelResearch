@@ -38,13 +38,15 @@ def add_position_nfl(df):
     df['Position'] = Result
     return df
 
-def player_split(data,rows_per_player,output):
+def nfl_player_split(data,rows_per_player,output):
     #take a list with all player data, and creates a row per player per game given a constant at which to start a new row
     data_list = data
     rows = rows_per_player
     players = [data_list[x:x + rows] for x in range(0, len(data_list), rows)]
     for player in players:
+        #add week
         player.insert(0, player[0].split('|')[1])
+        #add other data
         output.append([player[0],
                         player[1].split('|')[0],
                         player[2].split('|')[0],
@@ -52,7 +54,6 @@ def player_split(data,rows_per_player,output):
                         player[4].split('|')[0],
                         player[5].split('|')[0],
                         ])
-    logging.info(f"{output}")
     return output
 
 def google_drive_upload(df, sport: str, ):

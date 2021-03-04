@@ -6,7 +6,7 @@ from base import (
         clean_column,
         url_creator,
         url_scraper,
-        player_split
+        nfl_player_split
     )
 
 def run_nfl(week):
@@ -40,7 +40,7 @@ def run_nfl(week):
     # each row was 5 entries. This gets thrown off very easily though so we need to be careful to remove all other data
     # which we have already done above. Now creating list that has each player entry as its own record without date.
     player_rows = []
-    player_split(data_list,5,player_rows)
+    nfl_player_split(data_list,5,player_rows)
     sample_frame = pd.DataFrame.from_records(player_rows).reset_index(drop=True)
     sample_frame.columns = ['Week', 'Name', 'Team', 'Opponent', 'Fanduel_Points', 'Fanduel_Price']
     # Replace currency symbols in column so we can make it an integer
@@ -50,10 +50,10 @@ def run_nfl(week):
     sample_frame['Fanduel_Price'] = pd.to_numeric(sample_frame['Fanduel_Price'], errors='coerce')
     # there is no price listed for some players. i am removing them since the whole goal is to see who exceeds their price
     sample_frame = sample_frame[~sample_frame['Fanduel_Price'].isna()].reset_index(drop=True)
-    # Convert Fanduel_Points to float
+
     sample_frame['Fanduel_Points'] = pd.to_numeric(sample_frame['Fanduel_Points'])
     # create column for home vs away and updated column for opponent
-    sample_frame['Split'] = sample_frame['Opponent'].str[0].apply(lambda x: 'Home' if str(x) == 'v' else 'Away')
+    sample_frame['Game Location'] = sample_frame['Opponent'].str[0].apply(lambda x: 'Home' if str(x) == 'v' else 'Away')
     sample_frame['Opponent'] = sample_frame['Opponent'].str[1:].replace(". ", "")
     # get rid of some carrots that are appearing
     clean_column(sample_frame, 'Name', "^")
