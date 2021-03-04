@@ -10,7 +10,6 @@ def nba_url_creator(day,month,year,urls):
     years = [2020, 2021]
     months = list(range(1, 13, 1))
     days = list(range(1, 32, 1))
-    urls = []
     for year in years:
         for month in months:
             for day in days:
@@ -24,8 +23,6 @@ def nba_url_creator(day,month,year,urls):
     return urls
 
 def nba_url_scraper(urls,output):
-    urls=urls
-    rows=output
     for url in urls:
         webpage = requests.get(url)
         webpage_content = webpage.content
@@ -33,6 +30,21 @@ def nba_url_scraper(urls,output):
         table_rows = soup.find_all('td')
     #pulling just the player data, which starts on the 24th entry.
         for row in table_rows[24:]:
-            rows.append([row.get_text(),url])
-    logging.info(f"{rows}")
-    return rows
+            output.append([row.get_text(),url])
+    return output
+
+def nba_player_split(data,rows_per_player,output):
+    players = [data[x:x + rows_per_player] for x in range(0, len(data), rows_per_player)]
+    for player in players:
+        logging.info(player)
+        player.insert(0, player[0].split('|')[1])
+        output.append([player[0],
+                            player[1].split('|')[0],
+                            player[2].split('|')[0],
+                            player[3].split('|')[0],
+                            player[4].split('|')[0],
+                            player[5].split('|')[0],
+                            player[6].split('|')[0],
+                            player[7].split('|')[0],
+                            player[8].split('|')[0],
+                            player[9].split('|')[0]])

@@ -27,7 +27,7 @@ def google_drive_upload(df, sport: str, ):
     if sport =="NFL":
         spreadsheet = client.open('nfl_weekly_fanduel_scores')
     elif sport == "NBA":
-        spreadsheet = client.open('Player_Game_Records')
+        spreadsheet = client.open('Player_Game_Records_2021')
     # Updating sheet with my new csv
     with open(f'{sport}.{savetime}.csv', 'r') as file_obj:
         content = file_obj.read()
