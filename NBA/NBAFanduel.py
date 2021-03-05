@@ -5,6 +5,7 @@ from base import (
         nba_url_creator,
         nba_url_scraper,
         nba_player_split,
+        word_cleaner
     )
 
 def run_nba(day,month,year):
@@ -28,41 +29,21 @@ def run_nba(day,month,year):
 
         # create separate frame that removes all the url columns
         date_frame = sample_frame[['Data', 'Date']].reset_index(drop=True)
-        # We need to remove some ads and nav stuff here by
-        # converting to a series, finding the ones that match, and adding back to the table
-        find_Ads = date_frame['Data']
-        # create series that has 0 for what matches the ads
-        ads_found = find_Ads.str.find('RotoGuru')
-        # add column to table with 0's
-        date_frame['Ad'] = ads_found
-        # create new table with those rows with zero gone
-        no_ads = date_frame[date_frame['Ad'] != 1].reset_index(drop=True)
-        # Repeating to remove Jump To:
-        # converting to a series, finding the ones that match, and adding back to the table
-        find_jump = no_ads['Data']
-        # create series that has 0 for what matches the text
-        jump_found = find_jump.str.find('Jump to:')
-        # add column to table with 0's
-        no_ads['Remove'] = jump_found
-        # create new table with those rows with zero gone
-        jump_gone = no_ads[no_ads['Remove'] != 0].reset_index(drop=True)
-        # There's a term 'Unlisted' that pops up occasionally and breaks everything. I'm clearing that here
-        find_unlisted = jump_gone['Data']
-        # create series that has a 0 for where it says unlisted
-        unlisted_found = find_unlisted.str.find('Unlisted')
-        # add column to table with 0's
-        jump_gone['Z'] = unlisted_found
-        # create new table with those rows removed
-        unlisted_gone = jump_gone[jump_gone['Z'] != 0].reset_index(drop=True)
-        ##There's a subtable headers that aren't player data. we are getting rid of most those here. Min can't go
-        # because it lines up with al-farouq aminu. Opp can't because of Obi Toppin
+        no_ads = word_cleaner(date_frame,'RotoGuru')
+        jump_gone = word_cleaner(no_ads,'Jump to:')
+        unlisted_gone = word_cleaner(jump_gone,'Unlisted')
+        min_gone = word_cleaner(unlisted_gone,"Min")
+        opp_gone = word_cleaner(min_gone,'Opp. ')
+        ##There's a subtable headers that aren't player data. we are getting rid of most those here. Some can't go
+        #because the strings are shorter and can be found in player names - that's where I use word cleaner.
+        # Example: Opp can't be in this because of Obi Toppin; we don't want to delete his name
         ##creates list of all the words I want to find and get rid of
-        sub = ['Forward', 'Center', 'FD Points', 'Salary', 'Team', 'Score', 'Stats', 'Unlisted']
+        sub = ['Forward', 'Center', 'FD Points', 'Salary', 'Team', 'Score', 'Stats']
         pattern = '|'.join(sub)
 
-        unlisted_gone['gone'] = unlisted_gone['Data'].str.contains(pattern, case=False)
+        opp_gone['gone'] = opp_gone['Data'].str.contains(pattern, case=False)
         # remove any rows where we found those subtable headers
-        cleaner_table = unlisted_gone[unlisted_gone['gone'] != True].reset_index()
+        clean_table = opp_gone[opp_gone['gone'] != True].reset_index()
         # specifically remove Min
         # converting to a series, finding the ones that match, and adding back to the table
         find_min = cleaner_table['Data']
