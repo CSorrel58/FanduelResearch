@@ -11,6 +11,7 @@ requests = "2.25.1"
 gspread = "*"
 oauth2client = "*"
 click = "7.1.2"
+pre-commit = "*"
 
 [dev-packages]
 
