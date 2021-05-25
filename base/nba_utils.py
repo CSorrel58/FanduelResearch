@@ -1,9 +1,6 @@
 import logging
-import re
-import os
 from bs4 import BeautifulSoup
 import requests
-from datetime import date
 
 def nba_url_creator(day,month,year,urls):
     # Do need to update this for each season's opening day/years
@@ -26,7 +23,7 @@ def nba_url_creator(day,month,year,urls):
         for month in months:
             for day in days:
                 date = dict(day=day, month=month, year=year,
-                            url=f"http://rotoguru1.com/cgi-bin/hyday.pl?game=fd&mon='+{str(month)}+'&day='+{str(day)} + '&year='+{str(year)}"
+                            url=f"http://rotoguru1.com/cgi-bin/hyday.pl?game=fd&mon={str(month)}&day={str(day)}&year={str(year)}")
                 dates.append(date)
 
     for entry in dates:
@@ -36,7 +33,6 @@ def nba_url_creator(day,month,year,urls):
         elif entry['year'] == current_day['year']:
             if entry['month'] <= current_day['month']:
                 urls.append(entry["url"])
-    logging.info(len(urls))
     return urls
 
 
@@ -54,7 +50,6 @@ def nba_url_scraper(urls,output):
 def nba_player_split(data,rows_per_player,output):
     players = [data[x:x + rows_per_player] for x in range(0, len(data), rows_per_player)]
     for player in players:
-        logging.info(player)
         player.insert(0, player[0].split('|')[1])
         output.append([player[0],
                             player[1].split('|')[0],
