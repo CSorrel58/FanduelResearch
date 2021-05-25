@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 
-""" Use this to execute commands to run either process. Recomemnded you use pipenv shell before executing."""
+"""
+    Use this to execute commands to run either process. Recommended you use pipenv shell before executing.
+    Example commands:
+        NFL:
+            cli/commands.py fanduel-nfl
+        NBA
+            cli/commands.py fanduel-nba
+"""
 import click
 import os
 import logging
@@ -25,7 +32,7 @@ def scraper(log_level):
     logs = logging.getLevelName(log_level.upper())
     logging.getLogger().setLevel(logs)
 
-@scraper.command()
+@scraper.command("fanduel-nfl")
 @click.option('--week',default=17)
 
 def fanduel_nfl(week):
@@ -33,7 +40,7 @@ def fanduel_nfl(week):
     week = week
     run_nfl(week)
 
-@scraper.command()
+@scraper.command("fanduel-nba")
 @click.option('--day',default=31)
 @click.option('--month',default=12)
 @click.option('--year',default=2021)
