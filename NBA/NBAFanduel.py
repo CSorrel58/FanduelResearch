@@ -7,8 +7,11 @@ from base import (
         nba_player_split,
         word_cleaner
     )
+import time
+import logging
 
 def run_nba(day,month,year):
+        start_time = time.time()
         day =day
         month=month
         year=year
@@ -34,16 +37,16 @@ def run_nba(day,month,year):
         unlisted_gone = word_cleaner(jump_gone,'Unlisted')
         min_gone = word_cleaner(unlisted_gone,"Min")
         opp_gone = word_cleaner(min_gone,'Opp. ')
-        ##There's a subtable headers that aren't player data. we are getting rid of most those here. Some can't go
-        #because the strings are shorter and can be found in player names - that's where I use word cleaner.
+        # There's a subtable headers that aren't player data. we are getting rid of most those here. Some can't go
+        # because the strings are shorter and can be found in player names - that's where I use word cleaner.
         # Example: Opp can't be in this because of Obi Toppin; we don't want to delete his name
-        ##creates list of all the words I want to find and get rid of
+        # creates list of all the words I want to find and get rid of
         sub = ['Forward', 'Center', 'FD Points', 'Salary', 'Team', 'Score', 'Stats']
         pattern = '|'.join(sub)
 
         opp_gone['gone'] = opp_gone['Data'].str.contains(pattern, case=False)
         # remove any rows where we found those subtable headers
-        clean_table = opp_gone[opp_gone['gone'] != True].reset_index()
+        cleaner_table = opp_gone[opp_gone['gone'] != True].reset_index()
         # specifically remove Min
         # converting to a series, finding the ones that match, and adding back to the table
         find_min = cleaner_table['Data']
@@ -67,7 +70,7 @@ def run_nba(day,month,year):
 
         just_data['merge_date'] = just_data['Data'].astype(str) + '|' + just_data['Date']
         just_datas = list(just_data['merge_date'])
-        #each row was 9 entries. So we're gonna write this thing to create a series with lists of 9 entries each. This gets thrown off very easily though, so be sure all non player data is removed
+        # each row was 9 entries. So we're gonna write this thing to create a series with lists of 9 entries each. This gets thrown off very easily though, so be sure all non player data is removed
         player_rows = []
         nba_player_split(just_datas,9,player_rows)
 
@@ -87,7 +90,7 @@ def run_nba(day,month,year):
         # convert nan in Minutes column to 0's
         df1['NoNa'] = df1['NoNaN'].apply(lambda x: '0:0' if str(x) == 'NA' else x)
         # convert mm:ss to total minutes as a float by splitting and then adding
-        df1['Minutes_Played'] = df1['NoNa'].str.split(':').apply(lambda x: int(x[0]) + ((int(x[1]) / 60)))
+        # df1['Minutes_Played'] = df1['NoNa'].str.split(':').apply(lambda x: int(x[0]) + ((int(x[1]) / 60)))
         # Convert Fanduel_Points to float
         df1['Fanduel_Points'] = pd.to_numeric(df1['Fanduel_Points'])
         # create column for home vs away and updated column for opponent
@@ -214,3 +217,5 @@ def run_nba(day,month,year):
                    'Field_Goals_Made', 'Field_Goals_Attempted', 'Shooting%', 'Free_Throws_Made',
                    'Free_Throws_Attempted', 'Free_Throw%']]
         google_drive_upload(df2,"NBA")
+
+        logging.info(f"Time to run: {time.time()-start_time}")
