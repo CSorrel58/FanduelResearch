@@ -7,13 +7,18 @@ from base import (
         nfl_url_scraper,
         nfl_player_split
     )
+import logging
+import time
 
 def run_nfl(week):
+    # saving time just to see what our efficiency level is
+    start_time = time.time()
     # realized the url just updated based on week number, so wrote a loop to accumulate all of the urls up to the week number provided
     urls = []
     nfl_url_creator(week,urls)
     # creating an empty list that will have the player row for each table
     rows = []
+    logging.info(f"Scraping {len(urls)} urls for player data")
     nfl_url_scraper(urls,rows)
     # create data frame
     sample_frame = pd.DataFrame.from_records(rows).reset_index()
@@ -26,6 +31,7 @@ def run_nfl(week):
     # create separate frame that removes all the url columns
     sample_frame = sample_frame[['Data', 'Week']].reset_index(drop=True)
     # There's a headers that aren't player data. we are getting rid of most those here.
+    logging.info("Cleaning headers, other features from frame")
     sub = ['QB', 'Points', 'Team', 'Salary', 'Unlisted', 'Running Backs', 'Kickers', 'Defenses','Opp.','Wide Receivers', "Tight Ends","RotoGuru","\n\n\n\n","Score"]
     pattern = '|'.join(sub)
     sample_frame['gone'] = sample_frame['Data'].str.contains(pattern, case=True)
@@ -39,6 +45,7 @@ def run_nfl(week):
     # each row was 5 entries. This gets thrown off very easily though so we need to be careful to remove all other data
     # which we have already done above. Now creating list that has each player entry as its own record without date.
     player_rows = []
+    logging.info("Creating player data table")
     nfl_player_split(data_list,5,player_rows)
     sample_frame = pd.DataFrame.from_records(player_rows).reset_index(drop=True)
     sample_frame.columns = ['Week', 'Name', 'Team', 'Opponent', 'Fanduel_Points', 'Fanduel_Price']
@@ -59,9 +66,12 @@ def run_nfl(week):
     # rename columns
     sample_frame.columns = ['Week', 'Name', 'Team', 'Opponent', 'Fanduel_Points', 'Fanduel_Price', 'Game Location']
     # add Value Column
+    logging.info("Adding player fanduel value as Points/Price")
     sample_frame['Fanduel_Value'] = sample_frame['Fanduel_Points'] / (sample_frame['Fanduel_Price'] / 1000)
     # creating position column I will add my positions to, with a default of QB, then running method to match correct positions
     sample_frame['Position'] = 'QB'
     add_position_nfl(sample_frame)
     # uploads the full frame to google sheets after saving locally as  a.csv
+    logging.info("Uploading saved frame to google drive")
     google_drive_upload(sample_frame,"NFL")
+    logging.info(f"Time to run = {round(time.time()-start_time,2)} seconds")

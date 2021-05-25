@@ -11,7 +11,7 @@ def clean_column(df, column_name:str, character:str):
     character = character
     frame = df
     column = column_name
-    frame[column] = frame[column].str.replace(character,"")
+    frame[column] = frame[column].str.replace(character,"",regex=True)
     return frame
 
 def google_drive_upload(df, sport: str, ):

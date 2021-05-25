@@ -33,7 +33,7 @@ def scraper(log_level):
     logging.getLogger().setLevel(logs)
 
 @scraper.command("fanduel-nfl")
-@click.option('--week',default=17)
+@click.option('--week',default=19)
 
 def fanduel_nfl(week):
     """Go to Rotoguru for NFL from opening week through week number listed and scrape player data to a google sheet"""
