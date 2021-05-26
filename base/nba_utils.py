@@ -51,9 +51,12 @@ def nba_table_grabber(urls):
     # Grabbing the first player table to create our dataframe - we will append to this
     first_page_tables = pd.read_html(urls[0])
     player_table = first_page_tables[-2]
+    # adding the url as a column since it has the date - the table itself doesn't give you that
+    player_table["URL"] = urls[0]
     for url in urls:
         page_tables = pd.read_html(url)
         page_table = page_tables[-2]
+        page_table["URL"] = url
         # adding filter for if the table is clearly not player data
         if len(page_table) > 10:
             player_table = player_table.append(page_table)
