@@ -60,7 +60,13 @@ def nba_table_grabber(urls):
         # adding filter for if the table is clearly not player data
         if len(page_table) > 10:
             player_table = player_table.append(page_table)
-    logging.info("Grabbed all tables")
+            if len(player_table) == 30000:
+                logging.info("Almost done")
+            elif len(player_table) == 20000:
+                logging.info("Working on it - over halfway")
+            elif len(player_table) == 10000:
+                logging.info("Making progress - over 10000 records!")
+    logging.info("Grabbed all tables. Total rows: {len(player_table)}")
     return player_table
 
 
@@ -90,11 +96,11 @@ def word_cleaner(frame, string):
     # only meant to be used with nba/nfl scraper that always has 'Data' column
     df = frame
     string = str(string)
-    data_column = df["Data"]
+    data_column = df["Position"]
     # create series that has 0 for what matches the ads
     string_found = data_column.str.find(string)
     # add column to table with 0's
     df["Remove"] = string_found
     # create new table with those rows with zero gone
-    output_frame = df[df["Remove"] != 1].reset_index(drop=True)
+    output_frame = df[df["Remove"] < 0].reset_index(drop=True)
     return output_frame

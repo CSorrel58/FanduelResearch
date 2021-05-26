@@ -21,8 +21,6 @@ def run_nba(day, month, year):
     nba_url_creator(day, month, year, urls)
 
     sample_frame = nba_table_grabber(urls)
-    logging.info(f" Frame = {sample_frame}")
-    sample_frame.to_csv("sample.csv")
 
     dates = sample_frame["URL"].map(
         lambda x: x.replace("http://rotoguru1.com/cgi-bin/hyday.pl?game=fd&mon=", "")
@@ -31,52 +29,7 @@ def run_nba(day, month, year):
     )
     sample_frame["Date"] = dates
 
-    # create separate frame that removes all the url columns
-    date_frame = sample_frame[["Data", "Date"]].reset_index(drop=True)
-    no_ads = word_cleaner(date_frame, "RotoGuru")
-    jump_gone = word_cleaner(no_ads, "Jump to:")
-    unlisted_gone = word_cleaner(jump_gone, "Unlisted")
-    min_gone = word_cleaner(unlisted_gone, "Min")
-    opp_gone = word_cleaner(min_gone, "Opp. ")
-    # There's a subtable headers that aren't player data. we are getting rid of most those here.
-    # Example: Opp can't be in this because of Obi Toppin; we don't want to delete his name
-    # creates list of all the words I want to find and get rid of
-    sub = ["Forward", "Center", "FD Points", "Salary", "Team", "Score", "Stats"]
-    pattern = "|".join(sub)
-
-    opp_gone["gone"] = opp_gone["Data"].str.contains(pattern, case=False)
-    # remove any rows where we found those subtable headers
-    cleaner_table = opp_gone[opp_gone["gone"] != True].reset_index()
-    # specifically remove Min
-    # converting to a series, finding the ones that match, and adding back to the table
-    find_min = cleaner_table["Data"]
-    # create series that has 0 for what matches the word Min
-    min_found = find_min.str.find("Min")
-    # add column to table with 0's
-    cleaner_table["Remove"] = min_found
-    # create new table with those rows with zero gone
-    clean_table = cleaner_table[cleaner_table["Remove"] != 0].reset_index(drop=True)
-    # specifically remove Opp
-    # converting to a series, finding the ones that match, and adding back to the table
-    find_opp = clean_table["Data"]
-    # create series that has 0 for what matches the word Min
-    opp_found = find_opp.str.find("Opp. ")
-    # add column to table with 0's
-    clean_table["Remove"] = opp_found
-    # create new table with those rows with zero gone
-    opp_table = clean_table[clean_table["Remove"] != 0].reset_index(drop=True)
-
-    just_data = opp_table[["Data", "Date"]].reset_index(drop=True)
-
-    just_data["merge_date"] = just_data["Data"].astype(str) + "|" + just_data["Date"]
-    just_datas = list(just_data["merge_date"])
-    # each row was 9 entries. So we're gonna write this thing to create a series with lists of 9 entries each. very fragile
-    player_rows = []
-    nba_player_split(just_datas, 9, player_rows)
-
-    sample_frame = pd.DataFrame.from_records(player_rows).reset_index(drop=True)
     sample_frame.columns = [
-        "Date,",
         "Position",
         "Name",
         "Fanduel_Points",
@@ -86,8 +39,18 @@ def run_nba(day, month, year):
         "Score",
         "Minutes",
         "Stats",
+        "URL",
+        "Date",
     ]
-
+    logging.info(sample_frame.columns)
+    # Clearing header rows
+    jump_gone = word_cleaner(frame=sample_frame, string="Jump to:")
+    guard_gone = word_cleaner(frame=jump_gone, string="Guards")
+    forward_gone = word_cleaner(frame=guard_gone, string="Forwards")
+    centers_gone = word_cleaner(frame=forward_gone, string="Centers")
+    unlisted_gone = word_cleaner(frame=centers_gone, string="Unlisted")
+    unlisted_gone.to_csv("sample.csv")
+    sample_frame = unlisted_gone
     clean_column(sample_frame, "Fanduel_Price", ",")
     clean_column(sample_frame, "Fanduel_Price", "$")
     sample_frame["Fanduel_Price"] = pd.to_numeric(
