@@ -13,6 +13,7 @@ oauth2client = "*"
 click = "7.1.2"
 pre-commit = "*"
 lxml = "*"
+html5lib = "*"
 
 [dev-packages]
 

@@ -1,9 +1,13 @@
 from bs4 import BeautifulSoup
 import requests
+import pandas as pd
+import logging
+import time
 
 
 def nba_url_creator(day, month, year, urls):
     # Do need to update this for each season's opening day/years
+    logging.info("Creating possible urls")
     day = day
     month = month
     year = year
@@ -36,19 +40,25 @@ def nba_url_creator(day, month, year, urls):
         elif entry["year"] == current_day["year"]:
             if entry["month"] <= current_day["month"]:
                 urls.append(entry["url"])
+    logging.info(f"Created {len(urls)} urls to scrape")
     return urls
 
 
-def nba_url_scraper(urls, output):
+def nba_table_grabber(urls):
+    logging.info(
+        "Grabbing tables using pandas.from_html - this will take a few minutes"
+    )
+    # Grabbing the first player table to create our dataframe - we will append to this
+    first_page_tables = pd.read_html(urls[0])
+    player_table = first_page_tables[-2]
     for url in urls:
-        webpage = requests.get(url)
-        webpage_content = webpage.content
-        soup = BeautifulSoup(webpage_content, "html.parser")
-        table_rows = soup.find_all("td")
-        # pulling just the player data, which starts on the 24th entry.
-        for row in table_rows[24:]:
-            output.append([row.get_text(), url])
-    return output
+        page_tables = pd.read_html(url)
+        page_table = page_tables[-2]
+        # adding filter for if the table is clearly not player data
+        if len(page_table) > 10:
+            player_table = player_table.append(page_table)
+    logging.info("Grabbed all tables")
+    return player_table
 
 
 def nba_player_split(data, rows_per_player, output):

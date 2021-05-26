@@ -3,7 +3,7 @@ from base import (
     google_drive_upload,
     clean_column,
     nba_url_creator,
-    nba_url_scraper,
+    nba_table_grabber,
     nba_player_split,
     word_cleaner,
 )
@@ -20,11 +20,9 @@ def run_nba(day, month, year):
     urls = []
     nba_url_creator(day, month, year, urls)
 
-    rows = []
-    nba_url_scraper(urls, rows)
-
-    sample_frame = pd.DataFrame.from_records(rows).reset_index()
-    sample_frame.columns = ["ID", "Data", "URL"]
+    sample_frame = nba_table_grabber(urls)
+    logging.info(f" Frame = {sample_frame}")
+    sample_frame.to_csv("sample.csv")
 
     dates = sample_frame["URL"].map(
         lambda x: x.replace("http://rotoguru1.com/cgi-bin/hyday.pl?game=fd&mon=", "")
