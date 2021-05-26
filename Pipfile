@@ -12,6 +12,7 @@ gspread = "*"
 oauth2client = "*"
 click = "7.1.2"
 pre-commit = "*"
+lxml = "*"
 
 [dev-packages]
 
