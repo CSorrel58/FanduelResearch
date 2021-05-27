@@ -60,13 +60,15 @@ def nba_table_grabber(urls):
         # adding filter for if the table is clearly not player data
         if len(page_table) > 10:
             player_table = player_table.append(page_table)
-            if len(player_table) == 30000:
+            if len(player_table) > 30000 and len(player_table) < 30300:
                 logging.info("Almost done")
-            elif len(player_table) == 20000:
+            elif len(player_table) > 20000 and len(player_table) < 20200:
                 logging.info("Working on it - over halfway")
-            elif len(player_table) == 10000:
+            elif len(player_table) > 10000 and len(player_table) < 10200:
                 logging.info("Making progress - over 10000 records!")
-    logging.info("Grabbed all tables. Total rows: {len(player_table)}")
+            elif len(player_table) > 500 and len(player_table) < 700:
+                logging.info("Just getting started")
+    logging.info(f"Grabbed all tables. Total rows: {len(player_table)}")
     return player_table
 
 

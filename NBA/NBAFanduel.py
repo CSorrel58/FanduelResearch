@@ -42,15 +42,14 @@ def run_nba(day, month, year):
         "URL",
         "Date",
     ]
-    logging.info(sample_frame.columns)
     # Clearing header rows
+    logging.info("Cleaning up the table")
     jump_gone = word_cleaner(frame=sample_frame, string="Jump to:")
     guard_gone = word_cleaner(frame=jump_gone, string="Guards")
     forward_gone = word_cleaner(frame=guard_gone, string="Forwards")
     centers_gone = word_cleaner(frame=forward_gone, string="Centers")
     unlisted_gone = word_cleaner(frame=centers_gone, string="Unlisted")
     unlisted_gone.to_csv("sample.csv")
-    sample_frame = unlisted_gone
     clean_column(sample_frame, "Fanduel_Price", ",")
     clean_column(sample_frame, "Fanduel_Price", "$")
     sample_frame["Fanduel_Price"] = pd.to_numeric(
@@ -58,6 +57,9 @@ def run_nba(day, month, year):
     )
 
     df1 = sample_frame[~sample_frame["Fanduel_Price"].isna()].reset_index(drop=True)
+    # Add default value of 0:0 for nulls
+    logging.info("Converting minutes to float")
+    df1["Minutes"] = df1["Minutes"].fillna("0:0")
     # convert DNP in Minutes column to 0's. Had to make 0:0 to allow split function to work for players with actual minutes
     df1["NoDNP"] = df1["Minutes"].apply(lambda x: "0:0" if str(x) == "DNP" else x)
     # convert nan in Minutes column to 0's
@@ -65,8 +67,12 @@ def run_nba(day, month, year):
     # convert nan in Minutes column to 0's
     df1["NoNa"] = df1["NoNaN"].apply(lambda x: "0:0" if str(x) == "NA" else x)
     # convert mm:ss to total minutes as a float by splitting and then adding
-    # df1['Minutes_Played'] = df1['NoNa'].str.split(':').apply(lambda x: int(x[0]) + ((int(x[1]) / 60)))
+    df1["Minutes_Played"] = (
+        df1["NoNa"].str.split(":").apply(lambda x: int(x[0]) + ((int(x[1]) / 60)))
+    )
     # Convert Fanduel_Points to float
+    # Add default value of 0:0 for nulls
+    df1["Fanduel_Points"] = df1["Fanduel_Points"].fillna(0)
     df1["Fanduel_Points"] = pd.to_numeric(df1["Fanduel_Points"])
     # create column for home vs away and updated column for opponent
     df1["Split"] = df1["Opponent"].str[0]
@@ -79,118 +85,53 @@ def run_nba(day, month, year):
     del df1["NoNa"]
     del df1["Opponent"]
     clean_column(df1, "Name", "^")
+    df1["Stats"] = df1["Stats"].fillna(0)
     # doing some work to parse the stats column so it's individual statistics and not the list
     stats = df1["Stats"].reset_index()
     stats_split = stats["Stats"].str.split(" ", expand=True).reset_index(drop=True)
+    stats_split.columns = [
+        "Points",
+        "Rebounds",
+        "Assists",
+        "Steals",
+        "Blocks",
+        "Turnovers",
+        "3pts",
+        "Field_Goals",
+        "Free_Throws",
+    ]
     stats_split.fillna("0")
-    # filtering just for values that contain points
-    stats_split["Points"] = stats_split[2].apply(lambda x: x if x.find("pt") else 0)
+    logging.info(stats_split)
     # removing signifier
     stats_split["Points"] = stats_split["Points"].str.replace("pt", "")
     # converting points to numeric
     stats_split["Points"] = pd.to_numeric(stats_split["Points"])
-    # As soon as I hit rebounds, I ran into a none type error. I am trying this way instead.
-    stats_split["Rebounds"] = (
-        stats_split[3]
-        .str.extract(pat="(.?.rb)")
-        .fillna(stats_split[2].str.extract(pat="(.?.rb)"))
-    )
     # removing signifier
     stats_split["Rebounds"] = stats_split["Rebounds"].str.replace("rb", "")
     # converting to numeric
     stats_split["Rebounds"] = pd.to_numeric(stats_split["Rebounds"])
-    # trying now for assists
-    stats_split["Assists"] = (
-        stats_split[4]
-        .str.extract(pat="(.?.as)")
-        .fillna(stats_split[3].str.extract(pat="(.?.as)"))
-        .fillna(stats_split[2].str.extract(pat="(.?.as)"))
-    )
     # removing signifier
     stats_split["Assists"] = stats_split["Assists"].str.replace("as", "")
     # converting to numeric
     stats_split["Assists"] = pd.to_numeric(stats_split["Assists"])
-    # trying now for steals
-    stats_split["Steals"] = (
-        stats_split[5]
-        .str.extract(pat="(.?.st)")
-        .fillna(stats_split[4].str.extract(pat="(.?.st)"))
-        .fillna(stats_split[3].str.extract(pat="(.?.st)"))
-        .fillna(stats_split[2].str.extract(pat="(.?.st)"))
-    )
     # removing signifier
     stats_split["Steals"] = stats_split["Steals"].str.replace("st", "")
     # converting to numeric
     stats_split["Steals"] = pd.to_numeric(stats_split["Steals"])
-    # trying now for Blocks
-    stats_split["Blocks"] = (
-        stats_split[6]
-        .str.extract(pat="(.?.bl)")
-        .fillna(stats_split[5].str.extract(pat="(.?.bl)"))
-        .fillna(stats_split[4].str.extract(pat="(.?.bl)"))
-        .fillna(stats_split[3].str.extract(pat="(.?.bl)"))
-        .fillna(stats_split[2].str.extract(pat="(.?.bl)"))
-    )
     # removing signifier
     stats_split["Blocks"] = stats_split["Blocks"].str.replace("bl", "")
     # converting to numeric
     stats_split["Blocks"] = pd.to_numeric(stats_split["Blocks"])
-    # trying now for Turnovers
-    stats_split["Turnovers"] = (
-        stats_split[7]
-        .str.extract(pat="(.?.to)")
-        .fillna(stats_split[6].str.extract(pat="(.?.to)"))
-        .fillna(stats_split[5].str.extract(pat="(.?.to)"))
-        .fillna(stats_split[4].str.extract(pat="(.?.to)"))
-        .fillna(stats_split[3].str.extract(pat="(.?.to)"))
-        .fillna(stats_split[2].str.extract(pat="(.?.to)"))
-    )
     # removing signifier
     stats_split["Turnovers"] = stats_split["Turnovers"].str.replace("to", "")
     # converting to numeric
     stats_split["Turnovers"] = pd.to_numeric(stats_split["Turnovers"])
-    # trying now for Three Pointers
-    stats_split["3pts"] = (
-        stats_split[8]
-        .str.extract(pat="(.?.trey)")
-        .fillna(stats_split[7].str.extract(pat="(.?.trey)"))
-        .fillna(stats_split[6].str.extract(pat="(.?.trey)"))
-        .fillna(stats_split[5].str.extract(pat="(.?.trey)"))
-        .fillna(stats_split[4].str.extract(pat="(.?.trey)"))
-        .fillna(stats_split[3].str.extract(pat="(.?.trey)"))
-        .fillna(stats_split[2].str.extract(pat="(.?.to)"))
-    )
     # removing signifier
     stats_split["3pts"] = stats_split["3pts"].str.replace("trey", "")
     # converting to numeric
     stats_split["3pts"] = pd.to_numeric(stats_split["3pts"])
-    # trying now for Field Goal
-    stats_split["Field_Goals"] = (
-        stats_split[9]
-        .str.extract(pat="(.?.?.?.fg)")
-        .fillna(stats_split[8].str.extract(pat="(.?.?.?.fg)"))
-        .fillna(stats_split[7].str.extract(pat="(.?.?.?.fg)"))
-        .fillna(stats_split[6].str.extract(pat="(.?.?.?.fg)"))
-        .fillna(stats_split[5].str.extract(pat="(.?.?.?.fg)"))
-        .fillna(stats_split[4].str.extract(pat="(.?.?.?.fg)"))
-        .fillna(stats_split[3].str.extract(pat="(.?.?.?.fg)"))
-        .fillna(stats_split[2].str.extract(pat="(.?.?.?.fg)"))
-    )
     # removing signifier
     stats_split["Field_Goals"] = stats_split["Field_Goals"].str.replace("fg", "")
-    # trying now for Free throws
-    stats_split["Free_Throws"] = (
-        stats_split[10]
-        .str.extract(pat="(.?.?.?.ft)")
-        .fillna(stats_split[9].str.extract(pat="(.?.?.?.ft)"))
-        .fillna(stats_split[8].str.extract(pat="(.?.?.?.ft)"))
-        .fillna(stats_split[7].str.extract(pat="(.?.?.?.ft)"))
-        .fillna(stats_split[6].str.extract(pat="(.?.?.?.ft)"))
-        .fillna(stats_split[5].str.extract(pat="(.?.?.?.ft)"))
-        .fillna(stats_split[4].str.extract(pat="(.?.?.?.ft)"))
-        .fillna(stats_split[3].str.extract(pat="(.?.?.?.ft)"))
-        .fillna(stats_split[2].str.extract(pat="(.?.?.?.ft)"))
-    )
     # removing signifier
     stats_split["Free_Throws"] = stats_split["Free_Throws"].str.replace("ft", "")
     # now splitting free throws and field goals into their own specific stats
