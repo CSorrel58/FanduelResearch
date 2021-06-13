@@ -1,12 +1,12 @@
-from bs4 import BeautifulSoup
-import requests
 import pandas as pd
 import logging
 import time
 
 
-def nba_url_creator(day, month, year, urls):
-    # Do need to update this for each season's opening day/years
+def nba_url_creator(day: int, month: int, year: int, urls: list) -> list:
+    """Creates every possible url that could have player data.
+    Then filters for the dates between the specified date and the start of the NBA season
+    Do need to update this for each season's opening day/years"""
     logging.info("Creating possible urls")
     day = day
     month = month
@@ -33,18 +33,28 @@ def nba_url_creator(day, month, year, urls):
                 )
                 dates.append(date)
 
+    # This second comprehension filters the urls for reasonable NBA dates
+    # Separate in case of a changed season start/end
     for entry in dates:
+        # If the date is in the first year of the season, the games will be after September
         if entry["year"] == opening_day["year"]:
-            if entry["month"] > current_day["month"]:
+            if entry["month"] > 9:
                 urls.append(entry["url"])
+        # if the date is in the second year of the season, the games will be before June
         elif entry["year"] == current_day["year"]:
-            if entry["month"] <= current_day["month"]:
+            if entry["month"] < 6:
                 urls.append(entry["url"])
     logging.info(f"Created {len(urls)} urls to scrape")
     return urls
 
 
 def nba_table_grabber(urls):
+    """
+    Uses pandas read_html to load a page. Since read html
+    grabs every page, wwe have to specify that we want the second to last table on the page
+    which is the one with player data.
+    """
+    start_time = time.time()
     logging.info(
         "Grabbing tables using pandas.from_html - this will take a few minutes"
     )
@@ -69,10 +79,15 @@ def nba_table_grabber(urls):
             elif len(player_table) > 500 and len(player_table) < 700:
                 logging.info("Just getting started")
     logging.info(f"Grabbed all tables. Total rows: {len(player_table)}")
+    logging.info(f"Scraping this took {time.time()-start_time} seconds")
     return player_table
 
 
 def nba_player_split(data, rows_per_player, output):
+    """
+    Currently defunct - was used to create rows when we used soup to directly read the table.
+    Now that we ues pandas read_html we do not do that.
+    """
     players = [
         data[x : x + rows_per_player] for x in range(0, len(data), rows_per_player)
     ]

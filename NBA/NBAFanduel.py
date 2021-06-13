@@ -4,7 +4,6 @@ from base import (
     clean_column,
     nba_url_creator,
     nba_table_grabber,
-    nba_player_split,
     word_cleaner,
 )
 import time
@@ -71,10 +70,12 @@ def run_nba(day, month, year):
         df1["NoNa"].str.split(":").apply(lambda x: int(x[0]) + ((int(x[1]) / 60)))
     )
     # Convert Fanduel_Points to float
+    logging.info("Converted fanduel points scored to float")
     # Add default value of 0:0 for nulls
     df1["Fanduel_Points"] = df1["Fanduel_Points"].fillna(0)
     df1["Fanduel_Points"] = pd.to_numeric(df1["Fanduel_Points"])
     # create column for home vs away and updated column for opponent
+    logging.info("Splitting opponent column into home vs away and opponent")
     df1["Split"] = df1["Opponent"].str[0]
     df1["Home"] = df1.Split.apply(lambda x: "Home" if str(x) == "v" else "Away")
     df1["Foe"] = df1["Opponent"].str[1:]
@@ -85,6 +86,7 @@ def run_nba(day, month, year):
     del df1["NoNa"]
     del df1["Opponent"]
     clean_column(df1, "Name", "^")
+    logging.info("Splitting the stats column into one column per stat")
     df1["Stats"] = df1["Stats"].fillna(0)
     # doing some work to parse the stats column so it's individual statistics and not the list
     stats = df1["Stats"].reset_index()
