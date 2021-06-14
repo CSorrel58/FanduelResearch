@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from base import (
     google_drive_upload,
     clean_column,
@@ -31,6 +32,7 @@ def run_nba(day, month, year):
     sample_frame.columns = [
         "Position",
         "Name",
+        "URL",
         "Fanduel_Points",
         "Fanduel_Price",
         "Team",
@@ -38,7 +40,6 @@ def run_nba(day, month, year):
         "Score",
         "Minutes",
         "Stats",
-        "URL",
         "Date",
     ]
     # Clearing header rows
@@ -91,6 +92,15 @@ def run_nba(day, month, year):
     # doing some work to parse the stats column so it's individual statistics and not the list
     stats = df1["Stats"].reset_index()
     stats_split = stats["Stats"].str.split(" ", expand=True).reset_index(drop=True)
+    stats_split.fillna("0")
+    # making sure each stat is in the right column by looking for the associated string for that stat
+    # first points
+    for column in stats_split.columns:
+        s = stats_split[column].str.contains("pt")
+        stats_split["Points"] = stats_split.Stats.where(s, "")
+
+    logging.info(stats_split)
+
     stats_split.columns = [
         "Points",
         "Rebounds",
@@ -102,8 +112,6 @@ def run_nba(day, month, year):
         "Field_Goals",
         "Free_Throws",
     ]
-    stats_split.fillna("0")
-    logging.info(stats_split)
     # removing signifier
     stats_split["Points"] = stats_split["Points"].str.replace("pt", "")
     # converting points to numeric
